@@ -1,21 +1,12 @@
 feather.replace();
 
 const searchParam = new URLSearchParams(location.search)
-const KEY = localStorage.getItem(`key`) ?? searchParam.get(`key`)
+let KEY = localStorage.getItem(`key`) ?? searchParam.get(`key`)
+if (!KEY) {
+  KEY = prompt(`Enter API KEY`)
+}
 console.log(KEY)
-const geo = searchParam.get(`geo`) ?? `13.761661,100.56969`
-
-const options = {
-  method: "GET",
-  url: "https://weatherapi-com.p.rapidapi.com/current.json",
-  params: {
-    q: geo,
-  },
-  headers: {
-    "X-RapidAPI-Key": KEY,
-    "X-RapidAPI-Host": "weatherapi-com.p.rapidapi.com",
-  },
-};
+const q = searchParam.get(`geo`) ?? `13.761661,100.56969`
 
 const UVWORD = (UVINDEX) => {
   if (UVINDEX < 3) {
@@ -36,7 +27,17 @@ const fetchData = () => {
   
   document.querySelector(`.date-dayname`).innerText = m.format(`dddd`);
   document.querySelector(`.date-day`).innerText = m.format(`DD MMM YYYY`);
-  
+  const options = {
+    method: "GET",
+    url: "https://weatherapi-com.p.rapidapi.com/current.json",
+    params: {
+      q,
+    },
+    headers: {
+      "X-RapidAPI-Key": KEY,
+      "X-RapidAPI-Host": "weatherapi-com.p.rapidapi.com",
+    },
+  };
   console.log(options)
   axios
   .request(options)
@@ -57,7 +58,10 @@ const fetchData = () => {
     document.querySelector(`.moonsun-value`).innerText = `${data.current.is_day ? `☀️` : `🌙`}` 
     document.querySelector(`.uv-value`).innerText = `${data.current.uv} (${UVWORD(data.current.uv)})` 
     document.querySelector(`.vis-value`).innerText = `${data.current.vis_km} km` 
-  });
+  })
+  .catch(err => {
+    console.log(err)
+  })
 
 }
 fetchData()
