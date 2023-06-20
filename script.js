@@ -1,11 +1,17 @@
 feather.replace();
 
 const searchParam = new URLSearchParams(location.search)
-let KEY = localStorage.getItem(`key`) ?? searchParam.get(`key`)
-if (!KEY) {
+let KEY = searchParam.get(`key`) || localStorage.getItem(`key`) 
+let NINJAAPIKEY = searchParam.get(`ninjakey`) || localStorage.getItem(`ninjakey`)
+while (!KEY) {
   KEY = prompt(`Enter API KEY`)
 }
+while (!NINJAAPIKEY) {
+  NINJAAPIKEY = prompt(`Enter NINJA API KEY`)
+}
 console.log(KEY)
+console.log(NINJAAPIKEY)
+
 const q = searchParam.get(`geo`) ?? `13.761661,100.56969`
 
 const UVWORD = (UVINDEX) => {
@@ -44,6 +50,34 @@ const fetchData = () => {
   .then((res) => res.data)
   .then((data) => {
     console.log(data.location);
+    console.log(data.location.name);
+    axios.get(`https://api.api-ninjas.com/v1/weather?city=${data.location.name}`,{
+      headers: { 'X-Api-Key': NINJAAPIKEY},
+      contentType: 'application/json',
+    })
+    .then(res => res.data)
+    .then(weatherData => {
+      console.log(weatherData)
+      document.querySelector(`.sunrise-value`).innerText = new Date(weatherData.sunrise*1000).toLocaleTimeString()
+      document.querySelector(`.sunset-value`).innerText = new Date(weatherData.sunset*1000).toLocaleTimeString()
+    })
+    axios.get(`https://api.api-ninjas.com/v1/airquality?city=${data.location.name}`,{
+      headers: { 'X-Api-Key': NINJAAPIKEY},
+      contentType: 'application/json',
+    })
+    .then(res => res.data)
+    .then(AQdata => {
+        console.log(AQdata)
+        document.querySelector(`.PM2_5-value`).innerText = `${AQdata[`PM2.5`].aqi}` 
+        document.querySelector(`.PM10-value`).innerText = `${AQdata[`PM10`].aqi}` 
+        document.querySelector(`.SO2-value`).innerText = `${AQdata[`SO2`].aqi}` 
+        document.querySelector(`.CO-value`).innerText = `${AQdata[`CO`].aqi}` 
+        document.querySelector(`.NO2-value`).innerText = `${AQdata[`NO2`].aqi}` 
+        document.querySelector(`.O3-value`).innerText = `${AQdata[`O3`].aqi}` 
+    })
+    .catch(err => {
+      console.log(err)
+    })
     console.log(data.current)
     document.querySelector(`.location`).innerText = `${data.location.name}, ${data.location.country}` 
     document.querySelector(`.localtime`).innerText = `${data.location.localtime}` 
@@ -55,8 +89,8 @@ const fetchData = () => {
     document.querySelector(`.humidity-value`).innerText = `${data.current.humidity} %` 
     document.querySelector(`.wind-value`).innerText = `${data.current.wind_kph} km/h` 
     document.querySelector(`.wind-direction-value`).innerText = `${data.current.wind_dir}` 
-    document.querySelector(`.moonsun-value`).innerText = `${data.current.is_day ? `☀️` : `🌙`}` 
-    document.querySelector(`.uv-value`).innerText = `${data.current.uv} (${UVWORD(data.current.uv)})` 
+    // document.querySelector(`.moonsun-value`).innerText = `${data.current.is_day ? `☀️` : `🌙`}` 
+    // document.querySelector(`.uv-value`).innerText = `${data.current.uv} (${UVWORD(data.current.uv)})` 
     document.querySelector(`.vis-value`).innerText = `${data.current.vis_km} km` 
   })
   .catch(err => {

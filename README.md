@@ -1,6 +1,7 @@
 # Weather App
 
 ## API
+- [API Ninjas](https://api-ninjas.com/)
 - [RapidAPI](https://rapidapi.com/weatherapi/api/weatherapi-com)
 - [Docs](https://www.weatherapi.com/docs/)
   - [Data Dict](https://www.weatherapi.com/docs/#apis-realtime)
